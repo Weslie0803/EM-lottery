@@ -68,7 +68,7 @@ export function LotteryRunner({ participants, slots, emergencyRequests, latestOu
           <InputNumber min={1} max={4} />
         </Form.Item>
         <Form.Item label="本轮机时数" name="maxWinners" rules={[{ required: true }]}> 
-          <InputNumber min={1} max={Math.max(1, slots.length)} />
+          <InputNumber min={1} max={28} />
         </Form.Item>
         <Button
           type="primary"
