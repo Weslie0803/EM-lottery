@@ -55,6 +55,35 @@ yarn build
 yarn typecheck
 ```
 
+## 通过 GitHub Actions 自动打包发布
+
+本仓库已配置 GitHub Actions workflow，会在推送符合 `v*.*.*` 格式的 tag 时自动在 Windows 上执行 `yarn build` 与 `yarn dist`，并上传打包产物。
+
+发布流程示例：
+
+1. 确认 `package.json` 中的 `version` 已更新为预期版本号，例如 `0.1.0`。
+2. 提交并推送代码到远程仓库：
+
+	```powershell
+	git add .
+	git commit -m "chore: release 0.1.0"
+	git push origin main  # 或你的主分支名
+	```
+
+3. 创建并推送对应的版本 tag（必须符合 `vX.Y.Z` 格式）：
+
+	```powershell
+	git tag v0.1.0
+	git push origin v0.1.0
+	```
+
+4. 打开 GitHub 仓库的 **Actions** 页面，等待 `Build and Release` 工作流完成。
+5. 在该工作流运行详情页的 **Artifacts** 中，下载 `em-lottery-windows` 工件，其中包含：
+	- 安装包：`release/EM-Lottery-Setup-<version>.exe`
+	- 绿色版目录：`release/win-unpacked/`
+
+如需进一步集成自动创建 GitHub Release，可在现有 workflow 基础上追加发布步骤。 
+
 ## 后续可扩展
 
 - 导出 CSV/Excel 报表
