@@ -5,24 +5,9 @@ import { LotteryRunner } from "@components/LotteryRunner";
 import { HistoryPanel } from "@components/HistoryPanel";
 import { ParticipantSelector } from "@components/ParticipantSelector";
 import { usePersistentState } from "@hooks/usePersistentState";
-import {
-  createHistoryStore,
-  EmergencyRequest,
-  LotteryOutcome,
-  Participant,
-  performLottery,
-  Slot,
-  WinnerEntry,
-  updateParticipantStats
-} from "@core";
+import { createHistoryStore, EmergencyRequest, LotteryOutcome, Participant, performLottery, WinnerEntry, updateParticipantStats } from "@core";
 
 const { Header, Content } = Layout;
-
-const defaultSlots: Slot[] = [
-  { id: "slot-1300", label: "13:00-15:00", start: "13:00", end: "15:00" },
-  { id: "slot-1500", label: "15:00-17:00", start: "15:00", end: "17:00" },
-  { id: "slot-2200", label: "22:00-24:00", start: "22:00", end: "24:00", isLate: true }
-];
 
 export default function App() {
   const [status, setStatus] = useState("...");
@@ -30,7 +15,6 @@ export default function App() {
   const [participantsLoading, setParticipantsLoading] = useState(false);
   const [participantsMutating, setParticipantsMutating] = useState(false);
   const [activeParticipantIds, setActiveParticipantIds] = usePersistentState<string[]>("em-active-participants", []);
-  const [slots, setSlots] = usePersistentState<Slot[]>("em-slots", defaultSlots);
   const [emergencyRequests, setEmergencyRequests] = usePersistentState<EmergencyRequest[]>("em-emergency", []);
   const [latestOutcome, setLatestOutcome] = useState<LotteryOutcome>();
   const [historyVersion, setHistoryVersion] = useState(0);
@@ -160,7 +144,6 @@ export default function App() {
     try {
       const outcome = performLottery({
         participants: activeParticipants,
-        slots,
         emergencyRequests: applicableEmergency,
         emergencySlots: options.emergencySlots,
         guaranteeThreshold: options.guaranteeThreshold,
@@ -236,7 +219,6 @@ export default function App() {
           <Col xs={24} lg={12}>
             <LotteryRunner
               participants={activeParticipants}
-              slots={slots}
               emergencyRequests={emergencyRequests.filter(req => activeParticipantIds.includes(req.participantId))}
               latestOutcome={latestOutcome}
               onRun={handleRunLottery}

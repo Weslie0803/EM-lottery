@@ -1,15 +1,7 @@
 import dayjs from "dayjs";
 import { nanoid } from "nanoid";
 import { createHistoryStore } from "./historyStore";
-import {
-  EmergencyRequest,
-  HistoryStore,
-  LotteryConfig,
-  LotteryHistoryEntry,
-  LotteryOutcome,
-  Participant,
-  WinnerEntry
-} from "./types";
+import { EmergencyRequest, HistoryStore, LotteryConfig, LotteryHistoryEntry, LotteryOutcome, Participant, WinnerEntry } from "./types";
 
 const defaultHistoryStore = createHistoryStore();
 
@@ -178,7 +170,6 @@ export function performLottery(config: LotteryConfig): LotteryOutcome {
   const guaranteeMaxCount = Math.max(1, config.guaranteeMaxCount ?? 2);
 
   const participants = config.participants.filter(p => p.eligible !== false);
-  const lateSlots = config.slots.filter(slot => slot.isLate);
   const capacity = participants.length;
 
   const { winners: emergencyWinners, remainingCapacity: capacityAfterEmergency, usedParticipantIds } = allocateEmergencyWinners(
@@ -196,7 +187,7 @@ export function performLottery(config: LotteryConfig): LotteryOutcome {
   const { winners: lotteryWinners, missed } = runBaseLottery(participants, capacityAfterGuarantee, usedAfterGuarantee);
 
   const orderedWinners = withRanks([...emergencyWinners, ...guaranteeWinners, ...lotteryWinners]);
-  const lateOnly = lateSlots.length ? missed : [];
+  const lateOnly: Participant[] = [];
   const historyEntry = buildHistoryEntry(drawId, drawDate, orderedWinners, missed, lateOnly);
 
   store.append(historyEntry);
@@ -207,7 +198,6 @@ export function performLottery(config: LotteryConfig): LotteryOutcome {
     winners: orderedWinners,
     missed,
     lateOnly,
-    remainingLateSlots: lateSlots,
     historyEntry,
     updatedParticipants
   };

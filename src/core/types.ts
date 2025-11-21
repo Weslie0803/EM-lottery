@@ -7,14 +7,6 @@ export interface Participant {
   eligible?: boolean;
 }
 
-export interface Slot {
-  id: string;
-  label: string;
-  start: string; // 24h string e.g. "13:00"
-  end: string;
-  isLate?: boolean; // true when >= 22:00, lottery treats as optional
-}
-
 export interface EmergencyRequest {
   participantId: string;
   reason: string;
@@ -24,7 +16,6 @@ export interface EmergencyRequest {
 
 export interface LotteryConfig {
   participants: Participant[];
-  slots: Slot[];
   emergencyRequests?: EmergencyRequest[];
   emergencySlots?: number;
   guaranteeThreshold?: number; // e.g. 2 or 3 weeks
@@ -53,7 +44,6 @@ export interface LotteryOutcome {
   winners: WinnerEntry[];
   missed: Participant[];
   lateOnly: Participant[];
-  remainingLateSlots: Slot[];
   historyEntry: LotteryHistoryEntry;
   updatedParticipants: Participant[];
 }
