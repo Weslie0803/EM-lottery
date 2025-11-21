@@ -1,0 +1,61 @@
+{
+  "name": "em-lottery",
+  "version": "0.1.0",
+  "description": "Electron + React + Ant Design lottery scheduler for EM lab",
+  "main": "dist-electron/main.js",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k \"yarn:vite\" \"yarn:electron\"",
+    "vite": "vite dev --host 127.0.0.1 --port 5173 --strictPort",
+    "electron": "wait-on tcp:5173 && cross-env NODE_ENV=development electron ./electron/bootstrap.js",
+    "build": "tsc -p electron/tsconfig.json && vite build",
+    "typecheck": "tsc --noEmit",
+    "dist": "yarn build && electron-builder"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.3.6",
+    "antd": "^5.21.2",
+    "better-sqlite3": "^12.4.1",
+    "dayjs": "^1.11.13",
+    "nanoid": "^5.0.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.8.4",
+    "@types/react": "^18.3.10",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react-swc": "^3.7.0",
+    "concurrently": "^9.0.1",
+    "cross-env": "^7.0.3",
+    "electron": "^32.1.2",
+    "electron-builder": "^26.0.12",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "em.lottery.scheduler",
+    "productName": "EM 实验摇号系统",
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "files": [
+      "dist-electron/**/*",
+      "dist-renderer/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "dist-electron/main.js"
+    },
+    "win": {
+      "target": "nsis",
+      "artifactName": "EM-Lottery-Setup-${version}.exe"
+    }
+  }
+}
