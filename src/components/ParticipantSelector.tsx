@@ -1,4 +1,4 @@
-import { Button, Card, Space, Table, Tag, Typography } from "antd";
+import { Button, Card, Col, Row, Space, Tag, Typography } from "antd";
 import { useMemo } from "react";
 import type { Participant } from "@core";
 
@@ -10,39 +10,24 @@ interface ParticipantSelectorProps {
 }
 
 export function ParticipantSelector({ participants, selectedIds, loading, onChange }: ParticipantSelectorProps) {
-  const dataSource = useMemo(
+  const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+  const selectedParticipants = useMemo(
     () =>
-      participants.map(participant => ({
-        ...participant,
-        key: participant.id,
-        baseWeight: participant.baseWeight ?? 1,
-        eligible: participant.eligible !== false
-      })),
-    [participants]
+      participants
+        .filter(p => selectedSet.has(p.id))
+        .map(participant => ({
+          ...participant,
+          baseWeight: participant.baseWeight ?? 1,
+          eligible: participant.eligible !== false
+        })),
+    [participants, selectedSet]
   );
 
-  const selectedCount = selectedIds.length;
+  const selectedCount = selectedParticipants.length;
 
   const handleSelectAll = () => onChange(participants.map(p => p.id));
   const handleSelectEligible = () => onChange(participants.filter(p => p.eligible !== false).map(p => p.id));
   const handleClear = () => onChange([]);
-
-  const columns = [
-    { title: "姓名", dataIndex: "name" },
-    {
-      title: "基础权重",
-      dataIndex: "baseWeight"
-    },
-    {
-      title: "连续落空",
-      dataIndex: "consecutiveMisses"
-    },
-    {
-      title: "状态",
-      dataIndex: "eligible",
-      render: (value: boolean) => (value ? <Tag color="green">可参与</Tag> : <Tag color="default">暂停</Tag>)
-    }
-  ];
 
   return (
     <Card
@@ -61,18 +46,31 @@ export function ParticipantSelector({ participants, selectedIds, loading, onChan
           清空
         </Button>
       </Space>
-      <Table
-        dataSource={dataSource}
-        columns={columns}
-        size="small"
-        pagination={{ pageSize: 6 }}
-        rowSelection={{
-          type: "checkbox" as const,
-          selectedRowKeys: selectedIds,
-          onChange: selectedRowKeys => onChange(selectedRowKeys as string[])
-        }}
-        loading={loading}
-      />
+      {loading ? (
+        <Typography.Text>加载中...</Typography.Text>
+      ) : selectedParticipants.length === 0 ? (
+        <Typography.Text type="secondary">当前参与名单为空，请通过按钮选择需要参与本轮的同学。</Typography.Text>
+      ) : (
+        <Row gutter={[12, 12]}>
+          {selectedParticipants.map(participant => (
+            <Col xs={24} sm={12} key={participant.id}>
+              <Card size="small" bordered>
+                <Space direction="vertical" style={{ width: "100%" }}>
+                  <Space style={{ width: "100%", justifyContent: "space-between" }}>
+                    <Typography.Text strong>{participant.name}</Typography.Text>
+                    <Tag color={participant.eligible ? "green" : "default"}>
+                      {participant.eligible ? "可参与" : "暂停"}
+                    </Tag>
+                  </Space>
+                  <Typography.Text type="secondary">
+                    基础权重：{participant.baseWeight}，连续落空：{participant.consecutiveMisses}
+                  </Typography.Text>
+                </Space>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
     </Card>
   );
 }
