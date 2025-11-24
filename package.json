@@ -2,6 +2,7 @@
   "name": "em-lottery",
   "version": "0.2.0",
   "description": "Electron + React + Ant Design lottery scheduler for EM lab",
+  "author": "Weslie0803",
   "main": "dist-electron/main.js",
   "private": true,
   "scripts": {
@@ -57,7 +58,6 @@
       "target": "nsis",
       "artifactName": "EM-Lottery-Setup-${version}.exe"
     }
-    ,
-    "publish": "never"
+    
   }
 }
