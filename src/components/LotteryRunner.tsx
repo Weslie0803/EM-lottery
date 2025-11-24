@@ -14,10 +14,11 @@ interface LotteryRunnerProps {
   emergencyRequests: EmergencyRequest[];
   latestOutcome?: LotteryOutcome;
   onRun(options: RunOptions): void | Promise<void>;
+  onConfirm?(outcome: LotteryOutcome): void | Promise<void>;
   isRunning?: boolean;
 }
 
-export function LotteryRunner({ participants, emergencyRequests, latestOutcome, onRun, isRunning }: LotteryRunnerProps) {
+export function LotteryRunner({ participants, emergencyRequests, latestOutcome, onRun, onConfirm, isRunning }: LotteryRunnerProps) {
   const [form] = Form.useForm<RunOptions>();
   const disabled = !participants.length;
 
@@ -120,6 +121,31 @@ export function LotteryRunner({ participants, emergencyRequests, latestOutcome, 
             <Col span={12}>
               <Typography.Title level={5}>晚场机时</Typography.Title>
               <Typography.Paragraph>本版本未区分晚场机时时段。</Typography.Paragraph>
+            </Col>
+          </Row>
+          <Row style={{ marginTop: 12 }} justify="end">
+            <Col>
+              <Button
+                type="primary"
+                onClick={() => {
+                  // allow re-running by validating form and calling onRun
+                  form.validateFields().then((values: RunOptions) => onRun(values));
+                }}
+              >
+                再次运行
+              </Button>
+            </Col>
+            <Col style={{ marginLeft: 8 }}>
+              <Button
+                type="primary"
+                onClick={() => {
+                  if (!latestOutcome) return;
+                  if (!onConfirm) return;
+                  Promise.resolve(onConfirm(latestOutcome));
+                }}
+              >
+                确认结果
+              </Button>
             </Col>
           </Row>
         </div>

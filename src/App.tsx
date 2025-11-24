@@ -168,11 +168,7 @@ export default function App() {
         updatedParticipants: adjustedUpdatedParticipants
       };
 
-      if (window.electronAPI?.participants?.bulkSave) {
-        await window.electronAPI.participants.bulkSave(adjustedOutcome.updatedParticipants);
-        await reloadParticipants();
-      }
-
+      // 不在此自动写入数据库，等待用户确认后再写入
       setLatestOutcome(adjustedOutcome);
       setHistoryVersion(version => version + 1);
       setEmergencyRequests(prev =>
@@ -190,6 +186,28 @@ export default function App() {
       setLotteryRunning(false);
     }
   };
+
+  const handleConfirmOutcome = useCallback(async () => {
+    if (!latestOutcome) {
+      messageApi.warning("当前没有可确认的摇号结果");
+      return;
+    }
+    if (!window.electronAPI?.participants?.bulkSave) {
+      messageApi.error("当前环境未连接 SQLite 存储，无法确认结果");
+      return;
+    }
+    setParticipantsMutating(true);
+    try {
+      await window.electronAPI.participants.bulkSave(latestOutcome.updatedParticipants);
+      await reloadParticipants();
+      messageApi.success("摇号结果已确认并写入数据库");
+    } catch (err) {
+      console.error("Failed to confirm outcome", err);
+      messageApi.error("确认结果失败");
+    } finally {
+      setParticipantsMutating(false);
+    }
+  }, [latestOutcome, messageApi, reloadParticipants]);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -222,6 +240,7 @@ export default function App() {
               emergencyRequests={emergencyRequests.filter(req => activeParticipantIds.includes(req.participantId))}
               latestOutcome={latestOutcome}
               onRun={handleRunLottery}
+              onConfirm={handleConfirmOutcome}
               isRunning={lotteryRunning}
             />
           </Col>
